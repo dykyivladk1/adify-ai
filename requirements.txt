@@ -1,0 +1,8 @@
+flask>=3.0,<4
+gunicorn>=22
+spotipy>=2.24
+requests>=2.31
+qdrant-client>=1.12
+sentence-transformers>=3.0
+numpy>=1.26
+python-dotenv>=1.0
