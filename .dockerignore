@@ -1,0 +1,6 @@
+.env
+.venv
+venv
+qdrant_data
+__pycache__
+.git
