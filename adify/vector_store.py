@@ -17,3 +17,14 @@ log = logging.getLogger(__name__)
 _NAMESPACE = uuid.UUID("5f1b3a52-6b0e-4c9a-9a57-3e0a3e2f9d11")
 
 
+def point_id(track_id: str) -> str:
+    return str(uuid.uuid5(_NAMESPACE, track_id))
+
+
+@dataclass
+class Hit:
+    track: Track
+    score: float
+    vector: np.ndarray
+
+
