@@ -74,3 +74,19 @@ _DECADE = re.compile(r"\b(?:19|20)?([0-9])0'?s\b")
 
 
 @dataclass
+class SearchTask:
+    kind: str           # "track" or "artist"
+    query: str
+    tags: list[str] = field(default_factory=list)
+    limit: int = 30
+
+
+@dataclass
+class ParsedPrompt:
+    raw: str
+    genres: list[str]
+    hinted_genres: list[str]
+    keywords: list[str]
+    year_range: str | None
+
+
