@@ -108,3 +108,31 @@ def _decade_to_range(match: re.Match) -> str:
     return f"{start}-{start + 9}"
 
 
+def parse_prompt(prompt: str) -> ParsedPrompt:
+    text = _normalize(prompt)
+
+    year_range = None
+    decade = _DECADE.search(text)
+    if decade:
+        year_range = _decade_to_range(decade)
+        text = text.replace(decade.group(0), " ")
+
+    # longest genres first so "indie rock" wins over "rock"
+    genres = []
+    for genre in sorted(GENRES, key=len, reverse=True):
+        pattern = rf"(?<![\w-]){re.escape(genre)}(?![\w-])"
+        if re.search(pattern, text):
+            genres.append(genre)
+            text = re.sub(pattern, " ", text)
+
+    words = [w for w in re.findall(r"[a-z0-9&'-]+", text) if w not in STOPWORDS and len(w) > 1]
+
+    hinted = []
+    for word in words:
+        for genre in MOOD_HINTS.get(word, []):
+            if genre not in genres and genre not in hinted:
+                hinted.append(genre)
+
+    return ParsedPrompt(raw=prompt.strip(), genres=genres, hinted_genres=hinted, keywords=words, year_range=year_range)
+
+
