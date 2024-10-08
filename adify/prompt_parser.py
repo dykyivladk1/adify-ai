@@ -90,3 +90,21 @@ class ParsedPrompt:
     year_range: str | None
 
 
+def _normalize(text: str) -> str:
+    text = text.lower().strip()
+    for alias, canonical in ALIASES.items():
+        text = re.sub(rf"\b{re.escape(alias)}\b", canonical, text)
+    return text
+
+
+def _decade_to_range(match: re.Match) -> str:
+    full = match.group(0)
+    digit = int(match.group(1))
+    # "90s" -> 1990s, "2010s" -> 2010s, "00s" -> 2000s
+    if full.startswith("20") or (len(full.rstrip("'s")) == 2 and digit <= 2):
+        start = 2000 + digit * 10
+    else:
+        start = 1900 + digit * 10
+    return f"{start}-{start + 9}"
+
+
