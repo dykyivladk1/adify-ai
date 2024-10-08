@@ -136,3 +136,27 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     return ParsedPrompt(raw=prompt.strip(), genres=genres, hinted_genres=hinted, keywords=words, year_range=year_range)
 
 
+def build_search_plan(parsed: ParsedPrompt, budget: int = 8) -> list[SearchTask]:
+    """At most `budget` searches - each one is up to 3 API calls (10 per page)."""
+    year = f" year:{parsed.year_range}" if parsed.year_range else ""
+    mood_tags = [w for w in parsed.keywords if w in MOOD_HINTS]
+    tasks: list[SearchTask] = []
+
+    # explicit genres are the strongest signal
+    for genre in parsed.genres:
+        tasks.append(SearchTask("track", f'genre:"{genre}"{year}', tags=[genre, *mood_tags], limit=40))
+        tasks.append(SearchTask("artist", f'genre:"{genre}"', tags=[genre, *mood_tags], limit=10))
+
+    # genres inferred from mood words only fill whatever budget is left
+    hinted = parsed.hinted_genres if not parsed.genres else parsed.hinted_genres[:2]
+    for genre in hinted:
+        tasks.append(SearchTask("track", f'genre:"{genre}"{year}', tags=[genre, *mood_tags], limit=30))
+
+    # plain keyword search catches titles like "Rainy Day" or "Midnight Drive"
+    if parsed.keywords:
+        tasks.append(SearchTask("track", " ".join(parsed.keywords[:5]) + year, tags=mood_tags, limit=30))
+
+    if not tasks:  # prompt was only stopwords / nonsense - just search it raw
+        tasks.append(SearchTask("track", parsed.raw[:100], limit=30))
+
+    return tasks[:budget]
