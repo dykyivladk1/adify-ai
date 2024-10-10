@@ -81,3 +81,58 @@ def mmr_select(
     return [candidates[i] for i in selected]
 
 
+class Recommender:
+    def __init__(
+        self,
+        store: TrackStore,
+        embedder: Embedder,
+        harvester_factory: Callable[[], Harvester],
+        min_good_hits: int = 60,
+        good_hit_score: float = 0.45,
+        max_per_artist: int = 2,
+    ):
+        self.store = store
+        self.embedder = embedder
+        self.harvester_factory = harvester_factory
+        self.min_good_hits = min_good_hits
+        self.good_hit_score = good_hit_score
+        self.max_per_artist = max_per_artist
+
+    def _candidates(self, vector: np.ndarray, pool: int, allow_explicit: bool) -> list[Hit]:
+        return self.store.search(vector, limit=pool, exclude_explicit=not allow_explicit)
+
+    def _needs_more(self, hits: list[Hit]) -> bool:
+        good = sum(1 for h in hits if h.score >= self.good_hit_score)
+        return good < self.min_good_hits
+
+    def recommend(
+        self, prompt: str, size: int = 25, allow_explicit: bool = True, refresh: bool = False
+    ) -> Recommendation:
+        parsed = parse_prompt(prompt)
+        vector = self.embedder.encode([query_text(parsed)])[0]
+        pool = max(size * 8, 150)
+
+        hits = self._candidates(vector, pool, allow_explicit)
+        harvested = 0
+        if refresh or self._needs_more(hits):
+            log.info("catalog is thin for %r, harvesting from Spotify", prompt)
+            harvested = self.harvester_factory().run(build_search_plan(parsed))
+            hits = self._candidates(vector, pool, allow_explicit)
+
+        main = mmr_select(hits, size, diversity=0.25, max_per_artist=self.max_per_artist)
+        alternative = mmr_select(
+            hits,
+            size,
+            diversity=0.5,
+            max_per_artist=1,
+            skip_ids={h.track.id for h in main},
+        )
+
+        return Recommendation(
+            prompt=prompt,
+            parsed=parsed,
+            main=[h.track for h in main],
+            alternative=[h.track for h in alternative],
+            harvested=harvested,
+            scores={h.track.id: round(h.score, 3) for h in main + alternative},
+        )
