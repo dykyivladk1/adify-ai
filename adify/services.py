@@ -13,3 +13,13 @@ from .vector_store import TrackStore
 
 
 @lru_cache(maxsize=1)
+def get_embedder() -> SentenceEmbedder:
+    return SentenceEmbedder(settings.embedding_model)
+
+
+@lru_cache(maxsize=1)
+def get_store() -> TrackStore:
+    return TrackStore.from_settings(settings, get_embedder())
+
+
+@lru_cache(maxsize=1)
