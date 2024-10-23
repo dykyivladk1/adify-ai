@@ -53,3 +53,13 @@ def _save(rec: Recommendation, two_playlists: bool, public: bool) -> list[dict]:
 
 
 @bp.get("/")
+def index():
+    return render_template(
+        "index.html",
+        logged_in=auth.is_logged_in(),
+        user=session.get("spotify_user"),
+        default_size=settings.playlist_size,
+    )
+
+
+@bp.get("/login")
