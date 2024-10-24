@@ -120,3 +120,33 @@ def generate():
 
 
 @bp.post("/api/generate")
+def api_generate():
+    data = request.get_json(silent=True) or {}
+    opts = _read_options(data, is_form=False)
+    if not opts["prompt"]:
+        return jsonify(error="prompt is required"), 400
+
+    try:
+        rec = get_recommender().recommend(opts["prompt"], size=opts["size"], allow_explicit=opts["allow_explicit"])
+    except SpotifyError as exc:
+        return jsonify(error=str(exc)), 502
+
+    body = {
+        "prompt": rec.prompt,
+        "genres": rec.parsed.genres + rec.parsed.hinted_genres,
+        "harvested": rec.harvested,
+        "main": [_track_json(t, rec) for t in rec.main],
+        "alternative": [_track_json(t, rec) for t in rec.alternative],
+        "playlists": [],
+    }
+    if opts["save"]:
+        if not auth.is_logged_in():
+            return jsonify(error="log in via /login to save playlists", **body), 401
+        try:
+            body["playlists"] = _save(rec, opts["two_playlists"], opts["public"])
+        except SpotifyError as exc:
+            return jsonify(error=str(exc), **body), 502
+    return jsonify(body)
+
+
+@bp.get("/health")
