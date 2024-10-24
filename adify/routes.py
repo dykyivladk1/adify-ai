@@ -85,3 +85,38 @@ def callback():
 
 
 @bp.get("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("adify.index"))
+
+
+@bp.post("/generate")
+def generate():
+    opts = _read_options(request.form, is_form=True)
+    if not opts["prompt"]:
+        flash("Describe the playlist you want first.")
+        return redirect(url_for("adify.index"))
+
+    try:
+        rec = get_recommender().recommend(opts["prompt"], size=opts["size"], allow_explicit=opts["allow_explicit"])
+    except SpotifyError as exc:
+        log.exception("recommendation failed")
+        flash(f"Spotify error while searching: {exc}")
+        return redirect(url_for("adify.index"))
+
+    if not rec.main:
+        flash("Couldn't find anything for that prompt. Try naming a genre or mood.")
+        return redirect(url_for("adify.index"))
+
+    playlists = []
+    if opts["save"] and auth.is_logged_in():
+        try:
+            playlists = _save(rec, opts["two_playlists"], opts["public"])
+        except (SpotifyError, PermissionError) as exc:
+            log.exception("saving playlist failed")
+            flash(f"Tracks found, but saving to Spotify failed: {exc}")
+
+    return render_template("result.html", rec=rec, playlists=playlists, logged_in=auth.is_logged_in())
+
+
+@bp.post("/api/generate")
