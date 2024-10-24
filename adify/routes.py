@@ -150,3 +150,17 @@ def api_generate():
 
 
 @bp.get("/health")
+def health():
+    return jsonify(status="ok", tracks_indexed=get_store().count())
+
+
+def _track_json(track, rec: Recommendation) -> dict:
+    return {
+        "id": track.id,
+        "name": track.name,
+        "artists": track.artists,
+        "album": track.album,
+        "year": track.release_year,
+        "url": track.url,
+        "score": rec.scores.get(track.id),
+    }
