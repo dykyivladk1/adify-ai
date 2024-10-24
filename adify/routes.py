@@ -63,3 +63,25 @@ def index():
 
 
 @bp.get("/login")
+def login():
+    return redirect(auth.user_oauth().get_authorize_url())
+
+
+@bp.get("/callback")
+def callback():
+    if request.args.get("error"):
+        flash(f"Spotify login failed: {request.args['error']}")
+        return redirect(url_for("adify.index"))
+
+    auth.user_oauth().get_access_token(request.args.get("code"), as_dict=False, check_cache=False)
+    try:
+        me = auth.user_client().me()
+        session["spotify_user"] = me.get("display_name") or me.get("id")
+    except SpotifyError as exc:
+        # In dev mode this is usually "user not registered in the developer dashboard"
+        log.warning("could not load profile: %s", exc)
+        flash("Logged in, but Spotify refused the profile call. Is your account added to the app's user list?")
+    return redirect(url_for("adify.index"))
+
+
+@bp.get("/logout")
