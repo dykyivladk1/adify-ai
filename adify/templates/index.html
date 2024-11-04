@@ -34,3 +34,17 @@
   <p class="muted small loading" hidden>Searching Spotify and ranking tracks… new moods can take ~10–20s.</p>
 </form>
 
+<script>
+  document.querySelectorAll(".chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelector("textarea[name=prompt]").value = chip.dataset.prompt;
+    });
+  });
+  document.getElementById("generate-form").addEventListener("submit", (e) => {
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true;
+    btn.textContent = "Generating…";
+    e.target.querySelector(".loading").hidden = false;
+  });
+</script>
+{% endblock %}
