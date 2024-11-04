@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ rec.prompt }} · ADIFY AI{% endblock %}
+{% block content %}
+<section class="result-head">
+  <p class="muted small">You asked for</p>
+  <h2>“{{ rec.prompt }}”</h2>
+  {% set genres = rec.parsed.genres + rec.parsed.hinted_genres %}
+  {% if genres %}
+    <div class="examples">
+      {% for g in genres %}<span class="chip static">{{ g }}</span>{% endfor %}
+    </div>
+  {% endif %}
+  {% if rec.harvested %}
+    <p class="muted small">Pulled {{ rec.harvested }} new tracks from Spotify for this one.</p>
+  {% endif %}
+</section>
+
