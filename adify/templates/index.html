@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Describe a mood.<br>Get a playlist.</h1>
+  <p class="muted">Type what you want to hear and ADIFY builds two Spotify playlists for it.</p>
+</section>
+
+<form class="card" method="post" action="{{ url_for('adify.generate') }}" id="generate-form">
+  <textarea name="prompt" rows="3" maxlength="200" required
+            placeholder="chill rock music for studying late at night"></textarea>
+
+  <div class="examples">
+    {% for example in ["90s hip hop for the gym", "rainy sunday jazz", "synthwave for night driving", "sad indie songs", "happy summer party"] %}
+      <button type="button" class="chip" data-prompt="{{ example }}">{{ example }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="options">
+    <label>Tracks
+      <input type="number" name="size" min="5" max="50" value="{{ default_size }}">
+    </label>
+    <label><input type="checkbox" name="explicit" checked> Allow explicit</label>
+    <label><input type="checkbox" name="two_playlists" checked> Also make a wider mix</label>
+    {% if logged_in %}
+      <label><input type="checkbox" name="save" checked> Save to Spotify</label>
+      <label><input type="checkbox" name="public" checked> Public</label>
+    {% endif %}
+  </div>
+
+  <button class="btn" type="submit">Generate</button>
+  {% if not logged_in %}
+    <p class="muted small">Not connected — you'll get a preview. <a href="{{ url_for('adify.login') }}">Connect Spotify</a> to save playlists.</p>
+  {% endif %}
+  <p class="muted small loading" hidden>Searching Spotify and ranking tracks… new moods can take ~10–20s.</p>
+</form>
+
