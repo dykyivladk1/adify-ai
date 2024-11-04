@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ADIFY AI{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="{{ url_for('adify.index') }}">ADIFY<span>AI</span></a>
+    <nav>
+      {% if logged_in %}
+        <span class="muted">{{ session.get('spotify_user') or 'Connected' }}</span>
+        <a href="{{ url_for('adify.logout') }}">Log out</a>
+      {% else %}
+        <a class="btn btn-small" href="{{ url_for('adify.login') }}">Connect Spotify</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages() %}
+      {% for message in messages %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
