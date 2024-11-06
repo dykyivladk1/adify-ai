@@ -15,3 +15,13 @@
   {% endif %}
 </section>
 
+{% if playlists %}
+  <div class="saved">
+    {% for p in playlists %}
+      <a class="btn" href="{{ p.url }}" target="_blank" rel="noopener">Open “{{ p.name }}” on Spotify</a>
+    {% endfor %}
+  </div>
+{% elif not logged_in %}
+  <div class="flash">Preview only — <a href="{{ url_for('adify.login') }}">connect Spotify</a> and generate again to save it.</div>
+{% endif %}
+
