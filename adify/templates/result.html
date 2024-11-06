@@ -25,3 +25,21 @@
   <div class="flash">Preview only — <a href="{{ url_for('adify.login') }}">connect Spotify</a> and generate again to save it.</div>
 {% endif %}
 
+<div class="columns">
+  {% for label, tracks in [("Closest match", rec.main), ("Wider mix", rec.alternative)] if tracks %}
+    <section class="card">
+      <h3>{{ label }} <span class="muted small">{{ tracks|length }} tracks</span></h3>
+      <ol class="tracks">
+        {% for t in tracks %}
+          <li>
+            <a href="{{ t.url }}" target="_blank" rel="noopener">{{ t.name }}</a>
+            <span class="muted">{{ t.artists|join(", ") }}{% if t.release_year %} · {{ t.release_year }}{% endif %}</span>
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endfor %}
+</div>
+
+<p><a href="{{ url_for('adify.index') }}">← Make another</a></p>
+{% endblock %}
