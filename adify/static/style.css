@@ -44,3 +44,16 @@ a:hover { text-decoration: underline; }
   margin: 24px 0;
 }
 
+textarea, input[type=number] {
+  width: 100%;
+  background: #101014;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font: inherit;
+  resize: vertical;
+}
+textarea:focus, input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+input[type=number] { width: 80px; margin-left: 8px; padding: 6px 8px; }
+
