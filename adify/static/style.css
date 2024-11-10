@@ -57,3 +57,16 @@ textarea, input[type=number] {
 textarea:focus, input:focus { outline: 2px solid var(--accent); border-color: transparent; }
 input[type=number] { width: 80px; margin-left: 8px; padding: 6px 8px; }
 
+.examples { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.chip {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.chip:hover { color: var(--text); border-color: var(--muted); }
+.chip.static { cursor: default; }
+
