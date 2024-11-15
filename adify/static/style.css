@@ -100,3 +100,12 @@ input[type=number] { width: 80px; margin-left: 8px; padding: 6px 8px; }
   margin-bottom: 16px;
 }
 
+.saved { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+
+.columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 24px; }
+.columns h3 { margin-top: 0; }
+
+.tracks { padding-left: 22px; margin: 0; }
+.tracks li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.tracks li:last-child { border-bottom: 0; }
+.tracks li span { display: block; font-size: 14px; }
