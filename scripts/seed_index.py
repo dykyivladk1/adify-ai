@@ -33,3 +33,21 @@ DEFAULT_PROMPTS = [
 ]
 
 
+def main(prompts: list[str]) -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    settings.validate()
+
+    store = get_store()
+    harvester = get_harvester()
+    print(f"catalog size before: {store.count()}")
+
+    for i, prompt in enumerate(prompts, 1):
+        started = time.perf_counter()
+        added = harvester.run(build_search_plan(parse_prompt(prompt), budget=10))
+        print(f"[{i}/{len(prompts)}] {prompt!r}: {added} tracks in {time.perf_counter() - started:.1f}s")
+
+    print(f"catalog size after: {store.count()}")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:] or DEFAULT_PROMPTS)
