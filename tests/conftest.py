@@ -32,3 +32,25 @@ class HashEmbedder:
         return out
 
 
+def make_track(i, name, artist, genres=(), tags=(), explicit=False):
+    return Track(
+        id=f"t{i}",
+        name=name,
+        artists=[artist],
+        artist_ids=[f"a-{artist.lower()}"],
+        album=f"{name} album",
+        release_year=2000 + i % 20,
+        genres=list(genres),
+        tags=list(tags),
+        explicit=explicit,
+    )
+
+
+@pytest.fixture
+def embedder():
+    return HashEmbedder()
+
+
+@pytest.fixture
+def store(embedder):
+    return TrackStore(QdrantClient(":memory:"), "test_tracks", embedder)
