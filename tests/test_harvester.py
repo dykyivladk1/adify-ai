@@ -12,3 +12,23 @@ def _api_track(i, artist_id="a1"):
     }
 
 
+class FakeSpotify:
+    def __init__(self):
+        self.artist_calls = 0
+
+    def search(self, query, kind, limit=30):
+        if kind == "artist":
+            return iter([{"id": "a9", "name": "A9", "genres": ["ambient"]}])
+        return iter([_api_track(1), _api_track(2), _api_track(1)])  # duplicate on purpose
+
+    def artist(self, artist_id):
+        self.artist_calls += 1
+        return {"genres": ["trip hop"]}
+
+    def artist_albums(self, artist_id, limit=5):
+        return [{"id": "al1", "name": "Deep", "release_date": "2001"}]
+
+    def album_tracks(self, album_id, limit=20):
+        return [{"id": "t50", "name": "Deep Track", "artists": [{"id": "a9", "name": "A9"}]}]
+
+
