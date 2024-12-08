@@ -32,3 +32,25 @@ class FakeSpotify:
         return [{"id": "t50", "name": "Deep Track", "artists": [{"id": "a9", "name": "A9"}]}]
 
 
+def test_track_from_api_parses_year():
+    track = track_from_api(_api_track(1), tags=["x"])
+    assert track.release_year == 1994 and track.tags == ["x"]
+    assert track_from_api({"id": None}) is None
+
+
+def test_harvest_dedupes_and_attaches_genres(store):
+    spotify = FakeSpotify()
+    harvester = Harvester(spotify, store)
+    stored = harvester.run([
+        SearchTask("track", 'genre:"trip hop"', tags=["trip hop"]),
+        SearchTask("artist", 'genre:"ambient"', tags=["ambient"]),
+    ])
+
+    assert stored == 3
+    assert store.count() == 3
+    # a1 genres come from one lookup, a9's from the artist search result (no lookup)
+    assert spotify.artist_calls == 1
+    hits = {h.track.id: h.track for h in store.search(store.embedder.encode(["deep"])[0], limit=10)}
+    assert hits["t50"].genres == ["ambient"]
+    assert hits["t50"].album == "Deep"
+    assert hits["t1"].genres == ["trip hop"]
