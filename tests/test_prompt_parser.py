@@ -8,3 +8,18 @@ def test_detects_genres_and_moods():
     assert parsed.keywords == ["chill", "studying"]
 
 
+def test_longer_genre_wins():
+    parsed = parse_prompt("some indie rock please")
+    assert parsed.genres == ["indie rock"]
+
+
+def test_aliases_and_decades():
+    parsed = parse_prompt("90s hiphop")
+    assert parsed.genres == ["hip hop"]
+    assert parsed.year_range == "1990-1999"
+
+    assert parse_prompt("2010s pop").year_range == "2010-2019"
+    assert parse_prompt("00s emo").year_range == "2000-2009"
+    assert parse_prompt("80's synthwave").year_range == "1980-1989"
+
+
