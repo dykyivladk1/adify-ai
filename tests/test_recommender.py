@@ -18,3 +18,15 @@ def test_mmr_caps_tracks_per_artist():
     assert sum(h.track.artists[0] == "same" for h in picked) == 2
 
 
+def test_mmr_prefers_diverse_results():
+    # three near-duplicates and one different but slightly less relevant track
+    hits = [
+        _hit(1, "a", 0.90, [1, 0]),
+        _hit(2, "b", 0.89, [1, 0.01]),
+        _hit(3, "c", 0.88, [1, 0.02]),
+        _hit(4, "d", 0.80, [0, 1]),
+    ]
+    picked = [h.track.id for h in mmr_select(hits, k=2, diversity=0.5)]
+    assert picked == ["t1", "t4"]
+
+
