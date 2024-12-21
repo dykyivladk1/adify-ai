@@ -30,3 +30,11 @@ def test_mmr_prefers_diverse_results():
     assert picked == ["t1", "t4"]
 
 
+def test_mmr_skips_ids_and_duplicate_titles():
+    hits = [_hit(1, "a", 0.9, [1, 0]), _hit(2, "b", 0.8, [0, 1])]
+    hits.append(_hit(3, "a", 0.85, [1, 0.1]))
+    hits[2].track.name = hits[0].track.name  # same song, different release
+    picked = mmr_select(hits, k=5, skip_ids={"t2"})
+    assert [h.track.id for h in picked] == ["t1"]
+
+
