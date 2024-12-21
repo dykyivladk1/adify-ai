@@ -38,3 +38,12 @@ def test_mmr_skips_ids_and_duplicate_titles():
     assert [h.track.id for h in picked] == ["t1"]
 
 
+class FakeHarvester:
+    def __init__(self, store, tracks):
+        self.store, self.tracks, self.calls = store, tracks, 0
+
+    def run(self, tasks):
+        self.calls += 1
+        return self.store.upsert(self.tracks)
+
+
