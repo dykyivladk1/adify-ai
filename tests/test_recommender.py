@@ -82,3 +82,11 @@ def test_recommender_skips_harvest_when_catalog_is_good(store, embedder):
     assert all("metal" in t.genres for t in result.main)
 
 
+def test_explicit_filter(store, embedder):
+    store.upsert([
+        make_track(1, "clean", "x", genres=["rock"]),
+        make_track(2, "dirty", "y", genres=["rock"], explicit=True),
+    ])
+    rec = Recommender(store, embedder, lambda: FakeHarvester(store, []), min_good_hits=0)
+    result = rec.recommend("rock", size=5, allow_explicit=False)
+    assert [t.id for t in result.main] == ["t1"]
