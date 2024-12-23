@@ -71,3 +71,14 @@ def test_recommender_harvests_when_catalog_is_empty(store, embedder):
     assert not {t.id for t in result.main} & {t.id for t in result.alternative}
 
 
+def test_recommender_skips_harvest_when_catalog_is_good(store, embedder):
+    store.upsert(_catalog())
+    harvester = FakeHarvester(store, [])
+    rec = Recommender(store, embedder, lambda: harvester, min_good_hits=5, good_hit_score=0.2)
+
+    result = rec.recommend("metal for the gym", size=5)
+
+    assert harvester.calls == 0
+    assert all("metal" in t.genres for t in result.main)
+
+
