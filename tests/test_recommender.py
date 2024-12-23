@@ -58,3 +58,16 @@ def _catalog():
     return tracks
 
 
+def test_recommender_harvests_when_catalog_is_empty(store, embedder):
+    harvester = FakeHarvester(store, _catalog())
+    rec = Recommender(store, embedder, lambda: harvester, min_good_hits=10, good_hit_score=0.2)
+
+    result = rec.recommend("lo-fi for studying", size=8)
+
+    assert harvester.calls == 1
+    assert result.harvested == 60
+    assert len(result.main) == 8
+    assert all("lo-fi" in t.genres for t in result.main)
+    assert not {t.id for t in result.main} & {t.id for t in result.alternative}
+
+
