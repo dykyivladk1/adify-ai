@@ -47,3 +47,14 @@ class FakeHarvester:
         return self.store.upsert(self.tracks)
 
 
+def _catalog():
+    tracks = []
+    for i in range(30):
+        tracks.append(
+            make_track(i, f"study beat {i}", f"lofi{i % 10}", genres=["lo-fi"], tags=["lo-fi", "studying"])
+        )
+    for i in range(30, 60):
+        tracks.append(make_track(i, f"banger {i}", f"metal{i % 10}", genres=["metal"], tags=["metal", "gym"]))
+    return tracks
+
+
