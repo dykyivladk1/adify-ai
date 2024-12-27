@@ -14,3 +14,16 @@ class StubRecommender:
 
 
 @pytest.fixture
+def client(monkeypatch):
+    monkeypatch.setattr(routes, "get_recommender", lambda: StubRecommender())
+    app = create_app()
+    app.config["TESTING"] = True
+    return app.test_client()
+
+
+def test_index_renders(client):
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert b"Connect Spotify" in resp.data
+
+
