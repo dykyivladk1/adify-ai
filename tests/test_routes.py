@@ -27,3 +27,15 @@ def test_index_renders(client):
     assert b"Connect Spotify" in resp.data
 
 
+def test_generate_preview_without_login(client):
+    resp = client.post("/generate", data={"prompt": "jazz for dinner", "size": "10"})
+    assert resp.status_code == 200
+    assert b"song 0" in resp.data and b"Wider mix" in resp.data
+    assert b"Preview only" in resp.data
+
+
+def test_empty_prompt_redirects(client):
+    resp = client.post("/generate", data={"prompt": "  "})
+    assert resp.status_code == 302
+
+
