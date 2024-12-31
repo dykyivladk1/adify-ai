@@ -39,3 +39,13 @@ def test_empty_prompt_redirects(client):
     assert resp.status_code == 302
 
 
+def test_api_generate(client):
+    resp = client.post("/api/generate", json={"prompt": "jazz"})
+    body = resp.get_json()
+    assert resp.status_code == 200
+    assert len(body["main"]) == 3 and body["playlists"] == []
+
+
+def test_api_save_requires_login(client):
+    resp = client.post("/api/generate", json={"prompt": "jazz", "save": True})
+    assert resp.status_code == 401
